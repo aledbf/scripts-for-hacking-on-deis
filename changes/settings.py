@@ -305,7 +305,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.' + os.environ.get('DATABASE_ENGINE', 'postgresql_psycopg2'),
         'NAME': os.environ.get('DATABASE_NAME', 'deis'),
-        'PASSWORD': 'changeme123',
+        'USER': os.environ.get('DATABASE_USER', 'deis'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'changeme123'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         # randomize test database name so we can run multiple unit tests simultaneously

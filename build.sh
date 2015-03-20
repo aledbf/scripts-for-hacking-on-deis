@@ -29,8 +29,8 @@ export DEV_REGISTRY=${HOST_IPADDR}:${REGISTRY_PORT}
 # database defaults.
 export DATABASE_HOST=$HOST_IPADDR
 export DATABASE_PORT=${DATABASE_PORT:-5432}
-export DATABASE_USER=deis
-export DATABASE_PASSWORD=changeme123
+export DATABASE_USER=${DATABASE_USER:-deis}
+export DATABASE_PASSWORD=${DATABASE_PASSWORD:-changeme123}
 
 # download postgres
 docker pull postgres:9.3
@@ -82,31 +82,34 @@ mkdir -p "$DEIS_GO"
 rm -rf "$DEIS_GO/deis"
 ln -s "$BUILD" "$DEIS_GO/deis"
 
-PR=$1
+WHAT=$1
 
-if [ "$PR" -ne "0" ]; then
-  echo "---------------------------------------------"
-  echo "|                                           |"
-  echo "| Building Pull Request $PR                 |"
-  echo "|                                           |"
-  echo "---------------------------------------------"
+re='^[0-9]+$'
+if ! [[ $WHAT =~ $re ]] ; then
+  # check that the specified path exists
+  echo ""
+  echo "Building local copy located in $WHAT"
+  echo ""
+else
+  echo ""
+  echo "Building Pull Request $WHAT"
+  echo ""
+  SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
   git clone https://github.com/deis/deis "$BUILD"
-  cp git-hack/git-config "$BUILD"/.git/config
-  # temporal local changes
-  cp changes/settings.py "$BUILD"/controller/deis/settings.py
-  cp changes/Makefile "$BUILD"/Makefile
-  cp changes/includes.mk "$BUILD"/includes.mk
+  cp git-hack/git-config "$BUILD/.git/config"
   cd "$BUILD"
   git fetch origin
-  # end temporal hack
-  git checkout pr/"$PR"
-  # temporal hack
+  git checkout pr/"$WHAT"
+  # temporal local changes
+  cp "$SCRIPT_DIR/changes/settings.py" "$BUILD/controller/deis/settings.py"
+  cp "$SCRIPT_DIR/changes/Makefile" "$BUILD/Makefile"
+  cp "$SCRIPT_DIR/changes/includes.mk" "$BUILD/includes.mk"
   git add includes.mk Makefile controller/deis/settings.py
   git status
   git commit -m "build"
-else
-  echo "Building local copy located in /app/build"
+  # end temporal hack
 fi
+
 
 make dev-registry
 

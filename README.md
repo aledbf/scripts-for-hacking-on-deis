@@ -6,7 +6,7 @@ As root execute `./host-setup.sh`
 
 **Building deis**
 
-As a normal user execute `./run.sh [PR number | local path to test]
+As a normal user execute `./build.sh [PR number | local path to test]
 
 
 
